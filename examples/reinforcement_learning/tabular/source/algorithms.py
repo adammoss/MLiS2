@@ -1,6 +1,4 @@
-import math
 import numpy as np
-import numpy.random
 
 class episodic_algorithm(object):
 	"""A wrapper for episodic policy gradient RL algorithms."""

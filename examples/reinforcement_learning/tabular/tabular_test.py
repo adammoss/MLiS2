@@ -1,8 +1,5 @@
 import sys
 import os
-import numpy as np
-import numpy.random
-from scipy import linalg
 from matplotlib import pyplot
 source_path = os.path.join("source/")
 sys.path.insert(0,source_path)

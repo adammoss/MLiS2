@@ -1,9 +1,3 @@
-import sys
-import os
-import math
-import numpy as np
-import numpy.random
-
 class excursions(object):
 
 	def __init__(self, parameters):

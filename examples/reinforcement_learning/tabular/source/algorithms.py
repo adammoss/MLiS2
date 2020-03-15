@@ -1,7 +1,7 @@
 import numpy as np
 
 class episodic_algorithm(object):
-	"""A wrapper for episodic policy gradient RL algorithms."""
+	"""A wrapper for episodic RL algorithms."""
 
 	def __init__(self, parameters):
 		self.environment = parameters['environment']

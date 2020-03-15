@@ -16,26 +16,26 @@ environment = environments.excursions(environment_parameters)
 
 table_dimension = (environment_parameters['trajectory_length']*2 + 1, 
 				   environment_parameters['trajectory_length'] + 1)
-policy1 = tables.two_action_policy_table(table_dimension, 0.1)
-values2 = tables.value_table(table_dimension, 0.1)
-policy2 = tables.two_action_policy_table(table_dimension, 0.1)
-values3 = tables.value_table(table_dimension, 0.1)
-policy3 = tables.two_action_policy_table(table_dimension, 0.1)
+policy1 = tables.two_action_policy_table(table_dimension, 0.15)
+values2 = tables.value_table(table_dimension, 0.6)
+policy2 = tables.two_action_policy_table(table_dimension, 0.15)
+values3 = tables.value_table(table_dimension, 0.6)
+policy3 = tables.two_action_policy_table(table_dimension, 0.15)
 
 algorithm_parameters1 = dict(
 	environment = environment, 
-	return_learning_rate = 0.001,
+	return_learning_rate = 0.1,
 	policy = policy1,
 )
 algorithm_parameters2 = dict(
 	environment = environment, 
-	return_learning_rate = 0.001,
+	return_learning_rate = 0.1,
 	values = values2,
 	policy = policy2,
 )
 algorithm_parameters3 = dict(
 	environment = environment, 
-	return_learning_rate = 0.001,
+	return_learning_rate = 0.1,
 	values = values3,
 	policy = policy3,
 )
@@ -43,7 +43,11 @@ agent1 = algorithms.monte_carlo_returns(algorithm_parameters1)
 agent2 = algorithms.monte_carlo_value_baseline(algorithm_parameters2)
 agent3 = algorithms.actor_critic(algorithm_parameters3)
 
-episodes = 10000
+initial_return = agent1.evaluate(1000)
+agent2.average_return = initial_return
+agent3.average_return = initial_return
+print(initial_return)
+episodes = 1000
 agent1.train(episodes)
 agent2.train(episodes)
 agent3.train(episodes)
@@ -57,4 +61,5 @@ pyplot.subplot(122)
 pyplot.plot(agent1.average_returns, c = 'r')
 pyplot.plot(agent2.average_returns, c = 'b')
 pyplot.plot(agent3.average_returns, c = 'k')
+pyplot.xscale('log')
 pyplot.show()

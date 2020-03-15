@@ -1,4 +1,5 @@
 class excursions(object):
+	"""A simple environment which provides rewards based on excursions."""
 
 	def __init__(self, parameters):
 		self.trajectory_length = parameters['trajectory_length']
@@ -9,6 +10,7 @@ class excursions(object):
 		self.terminal_state = False
 
 	def _reward(self):
+		"""Calculates the reward for the last transition to occur."""
 		if self.state[0] < 0:
 			reward = -self.positivity_bias * abs(self.state[0])
 		else:
@@ -17,15 +19,17 @@ class excursions(object):
 			reward -= self.target_bias * abs(self.state[0])
 		return reward
 
-	def transition(self, action):
+	def step(self, action):
+		"""Updates the environment state based on the input action."""
 		self.action = action
 		self.state[0] += 2*action - 1
 		self.state[1] += 1
 		if self.state[1] == self.trajectory_length:
 			self.terminal_state = True
-		return self.state, self._reward()
+		return self.state, self._reward(), self.terminal_state
 
 	def reset(self):
+		"""Resets the environment state and terminal boolean."""
 		self.action = 0
 		self.state = [0, 0]
 		self.terminal_state = False

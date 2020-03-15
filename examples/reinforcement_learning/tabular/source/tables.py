@@ -3,6 +3,7 @@ import numpy as np
 import numpy.random
 
 class value_table(object):
+	"""A generic tabular state value function."""
 
 	def __init__(self, dimensions, learning_rate):
 		self.table = np.zeros(dimensions)
@@ -17,6 +18,7 @@ class value_table(object):
 		self.table[state[0]][state[1]] += self.learning_rate * error
 
 class two_action_policy_table(object):
+	"""A tabular policy for environments where each state has two actions."""
 
 	def __init__(self, dimensions, learning_rate):
 		self.table = np.zeros(dimensions)

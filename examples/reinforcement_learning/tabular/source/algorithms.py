@@ -57,10 +57,10 @@ class episodic_algorithm(object):
 
 	def _sample(self):
 		"""Generates a sample trajectory using the current policy."""
-		trajectory = []
+		trajectory = [self.current_state.copy()]
 		while not self.terminal_state:
 			self._transition()
-			trajectory.append(self.current_state)
+			trajectory.append(self.current_state.copy())
 		self.environment.reset()
 		self.past_state = self.environment.state.copy()
 		self.current_state = self.environment.state.copy()

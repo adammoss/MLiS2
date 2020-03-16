@@ -24,14 +24,14 @@ class two_action_policy_table(object):
 		self.table = np.zeros(dimensions)
 		self.learning_rate = learning_rate
 
-	def forward(self, state):
+	def _forward(self, state):
 		"""Calculates the probabilitiy of action 1."""
 		exponentiated_potential = math.exp(-self.table[state[0]][state[1]])
 		return 1/(exponentiated_potential+1)
 
 	def action(self, state):
 		"""Returns a random action according to the current policy."""
-		action1_probability = self.forward(state)
+		action1_probability = self._forward(state)
 		random = numpy.random.random() # pylint: disable = no-member
 		if random < action1_probability:
 			return 1, 1 - action1_probability

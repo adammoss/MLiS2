@@ -57,6 +57,7 @@ class episodic_algorithm(object):
 
 	def _sample(self):
 		"""Generates a sample trajectory using the current policy."""
+		self.current_return = 0
 		trajectory = [self.current_state.copy()]
 		while not self.terminal_state:
 			self._transition()
@@ -119,8 +120,9 @@ class monte_carlo_returns(episodic_algorithm):
 	def _update(self):
 		"""Loops over the episode in reverse, updating the policy in each state."""
 		self.rewards = np.array(self.rewards)
-		for index in range(len(self.states)):
-			state_return = np.sum(self.rewards[index:])
+		state_return = 0
+		for index in range(len(self.states) - 1, -1, -1):
+			state_return += self.rewards[index]
 			self.policy.step(self.states[index], state_return, self.eligibilities[index])
 
 	def _per_episode(self):
@@ -148,8 +150,10 @@ class monte_carlo_value_baseline(monte_carlo_returns):
 	def _update(self):
 		"""Loops over the episode in reverse, updating state policies and values."""
 		self.rewards = np.array(self.rewards)
-		for index in range(len(self.states)):
-			error = np.sum(self.rewards[index:]) - self.state_values[index]
+		state_return = 0
+		for index in range(len(self.states) - 1, -1, -1):
+			state_return += self.rewards[index]
+			error = state_return - self.state_values[index]
 			self.policy.step(self.states[index], error, self.eligibilities[index])
 			self.values.step(self.states[index], error)
 

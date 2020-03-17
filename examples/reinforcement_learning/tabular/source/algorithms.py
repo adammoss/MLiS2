@@ -11,18 +11,19 @@ class episodic_algorithm(object):
 		self.return_learning_rate = parameters['return_learning_rate']
 		self.policy = parameters['policy']
 		self.episode = 0
-		self.past_state = self.environment.state.copy()
+		self.current_state = self.environment.reset()
+		self.past_state = self.current_state.copy()
 		self.action = 0
-		self.current_state = self.environment.state.copy()
 		self.reward = 0
 		self.current_return = 0
-		self.terminal_state = False
+		self.end = False
+		self.info = None
 	
 	def _transition(self):
 		"""Requests an action from the policy and sends it to the environment."""
 		self.past_state = self.current_state.copy()
 		self.action, self.eligibility = self.policy.action(self.current_state)
-		self.current_state, self.reward, self.terminal_state = self.environment.step(
+		self.current_state, self.reward, self.end, self.info = self.environment.step(
 			self.action)
 		self.current_return += self.reward
 
@@ -32,15 +33,14 @@ class episodic_algorithm(object):
 
 	def _per_episode(self):
 		"""A placeholder for a learning algorithms computations after episodes."""
-		self.environment.reset()
-		self.past_state = self.environment.state.copy()
-		self.current_state = self.environment.state.copy()
-		self.terminal_state = False
+		self.current_state = self.environment.reset()
+		self.past_state = self.current_state.copy()
+		self.end = False
 
 	def _episode(self):
 		"""Uses _per_step and _per_episode to run a generic episodes computations."""
 		self.current_return = 0
-		while not self.terminal_state:
+		while not self.end:
 			self._per_step()
 		self._per_episode()
 		self.average_return += self.return_learning_rate * (self.current_return 
@@ -59,13 +59,12 @@ class episodic_algorithm(object):
 		"""Generates a sample trajectory using the current policy."""
 		self.current_return = 0
 		trajectory = [self.current_state.copy()]
-		while not self.terminal_state:
+		while not self.end:
 			self._transition()
 			trajectory.append(self.current_state.copy())
-		self.environment.reset()
-		self.past_state = self.environment.state.copy()
-		self.current_state = self.environment.state.copy()
-		self.terminal_state = False
+		self.current_state = self.environment.reset()
+		self.past_state = self.current_state.copy()
+		self.end = False
 		return trajectory
 
 	def samples(self, sample_count):
@@ -81,12 +80,11 @@ class episodic_algorithm(object):
 	def _return_sample(self):
 		"""Runs an episode to sample a return for evaulation."""
 		self.current_return = 0
-		while not self.terminal_state:
+		while not self.end:
 			self._transition()
-		self.environment.reset()
-		self.past_state = self.environment.state.copy()
-		self.current_state = self.environment.state.copy()
-		self.terminal_state = False
+		self.current_state = self.environment.reset()
+		self.past_state = self.current_state.copy()
+		self.end = False
 
 	def evaluate(self, sample_count, set_average = True):
 		"""Evaluates the policy by estimating the average return."""
@@ -173,7 +171,10 @@ class actor_critic(episodic_algorithm):
 	def _update(self):
 		"""Updates the policy and value for the previous state."""
 		past_value = self.values.forward(self.past_state)
-		current_value = self.values.forward(self.current_state)
+		if not self.end:
+			current_value = self.values.forward(self.current_state)
+		else:
+			current_value = 0
 		td_error = current_value + self.reward - past_value
 		self.values.step(self.past_state, td_error)
 		self.policy.step(self.past_state, td_error, self.eligibility)

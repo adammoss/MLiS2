@@ -26,10 +26,11 @@ class excursions(object):
 		self.state[1] += 1
 		if self.state[1] == self.trajectory_length:
 			self.terminal_state = True
-		return self.state, self._reward(), self.terminal_state
+		return self.state, self._reward(), self.terminal_state, None
 
 	def reset(self):
 		"""Resets the environment state and terminal boolean."""
 		self.action = 0
 		self.state = [0, 0]
 		self.terminal_state = False
+		return self.state

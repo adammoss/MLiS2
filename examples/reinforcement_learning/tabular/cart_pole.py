@@ -13,8 +13,8 @@ env = gym.make('CartPole-v0')
 
 dimensions = (10,10,10,10)
 preprocessor = tables.cartpole_preprocessor(dimensions, 5, 5)
-values = tables.value_table(dimensions, 0.2, preprocessor = preprocessor)
-policy = tables.two_action_policy_table(dimensions, 0.05, preprocessor = preprocessor)
+values = tables.value_table(dimensions, 0.2, preprocessor)
+policy = tables.two_action_policy_table(dimensions, 0.05, preprocessor)
 algorithm_parameters = dict(
 	environment = env, 
 	return_learning_rate = 0.1,
@@ -38,7 +38,7 @@ pyplot.subplot(122)
 pyplot.plot(agent.average_returns, c = 'r')
 pyplot.show()
 
-tests = 1
+tests = 5
 for i in range(tests):
     observation = env.reset()
     done = False

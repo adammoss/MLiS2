@@ -1,4 +1,5 @@
 module Policies
+using ..Environments
 using Random
 using ReinforcementLearningEnvironments
 

@@ -9,6 +9,7 @@ include("models.jl")
 using .Environments
 using .Policies
 using .DataStructures
+using .Models
 
 function run_episode(policy, env)
     trajectory = []
@@ -24,6 +25,6 @@ function run_episode(policy, env)
 end
 
 
-export action, probability, RandomPolicy, action_space, state_space, reward, is_terminated, state, reset!, step!, create_cartpole_env, run_episode, SARS, get_total_return, NeuralNetworkDiscretePolicy, get_log_probability_gradients
+export action, probability, RandomPolicy, action_space, state_space, reward, is_terminated, state, reset!, step!, create_cartpole_env, run_episode, SARS, get_total_return, NeuralNetworkDiscretePolicy, get_log_probability_gradients, create_cartpole_model, calculate_returns, get_model_gradient
 
 end

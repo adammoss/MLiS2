@@ -3,6 +3,7 @@ using ..Environments
 using ..DataStructures
 using Random
 using ReinforcementLearningEnvironments
+using StatsBase
 using Flux
 
 struct RandomPolicy{T<:AbstractRNG}
@@ -23,6 +24,20 @@ struct NeuralNetworkDiscretePolicy{M}
     model::M
     num_inputs::Int
     num_outputs::Int
+end
+
+function probability(policy::NeuralNetworkDiscretePolicy, env) 
+    state = reshape(Environments.state(env), :, 1)
+    return reshape((policy.model(state) |> Flux.softmax), :)
+end
+function probability(policy::NeuralNetworkDiscretePolicy, env, action)
+    probs = probability(policy, env)
+    return probs[action]
+end
+function action(policy::NeuralNetworkDiscretePolicy, env)
+    probs = probability(policy, env)
+    a = StatsBase.sample(weights(probs))
+    return a
 end
 
 function get_log_probability_gradients(model::NeuralNetworkDiscretePolicy, states, actions_one_hot, prefactor)

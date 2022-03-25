@@ -1,12 +1,14 @@
 module PolicyGradientExamples
 
-# Write your package code here.
+include("sars.jl")
+
 include("environments.jl")
 include("policies.jl")
-include("sars.jl")
+include("models.jl")
 
 using .Environments
 using .Policies
+using .DataStructures
 
 function run_episode(policy, env)
     trajectory = []
@@ -22,6 +24,6 @@ function run_episode(policy, env)
 end
 
 
-export action, probability, RandomPolicy, action_space, state_space, reward, is_terminated, state, reset!, step!, create_cartpole_env, run_episode, SARS, get_total_return
+export action, probability, RandomPolicy, action_space, state_space, reward, is_terminated, state, reset!, step!, create_cartpole_env, run_episode, SARS, get_total_return, NeuralNetworkDiscretePolicy, get_log_probability_gradients
 
 end

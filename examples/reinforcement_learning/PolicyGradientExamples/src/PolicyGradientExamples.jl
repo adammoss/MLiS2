@@ -2,9 +2,11 @@ module PolicyGradientExamples
 
 # Write your package code here.
 include("environments.jl")
-include("Policies.jl")
+include("policies.jl")
 
-export Environments.action_space, Environments.state_space, Environments.reward, Environments.is_terminated, Environments.state, Environments.reset!, Environments.step!, Environments.create_cartpole_env
+using .Environments
+using .Policies
 
-export Policies.action, Policies.probability, Policies.RandomPolicy
+export action, probability, RandomPolicy, action_space, state_space, reward, is_terminated, state, reset!, step!, create_cartpole_env
+
 end

@@ -1,13 +1,15 @@
-using Plots
-using PolicyGradientExamples
+include("helper.jl")
 
+# Define the name of the policies
+get_policy_name(::RandomPolicy) = "Random Policy"
 
-function get_cartpole_trajectories(policy, n::Integer=1)
-    trajectories = []
-    env = create_cartpole_env()
-    for _ = 1:n
-        reset!(env)
-        push!(trajectories, run_episode(policy, env))
-    end
-    return [trajectories...]
+function plot_random_policy_returns(epochs=128)
+    policy = RandomPolicy();
+    ts = get_cartpole_trajectories(policy, epochs)
+    returns = get_total_return.(ts)
+    plt = plot(returns, legend=false)
+    title!("Random Policy Cartpole Return")
+    xlabel!("Epoch")
+    ylabel!("Return")
+    return plt
 end

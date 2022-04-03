@@ -31,15 +31,18 @@ function get_batch!(state, actions, rewards, params, cache; rng=Random.GLOBAL_RN
     state[:, 1] .= zero(eltype(state))
 
     for t=2:max_time
-        rand!(rng, cache)
+        # List of probabilities for each possible state at time t-1
         probs = get_probability(params, t-1)
-        prob_actions = getindex(probs, convert_index(state[:, t-1], t-1))
+        # Map the states to the action probabilities, using the previous state and time
+        prob_actions = map(x->probs[x], convert_index(state[:, t-1], t-1))
+        # Sample the actions according to probs of model -> 1 is up and 0 is down
+        rand!(rng, cache)
         actions[:, t-1] .= (cache .< prob_actions)
+
         rewards[:, t-1] .= -log.(actions[:, t-1].*prob_actions.+(one(eltype(actions)).-actions[:, t-1]).*(one(eltype(prob_actions)).-prob_actions))
-        state[:, t] .= state[:, t-1] .+ actions[:, t-1] .* convert(eltype(state), 2) .- one(eltype(state))
+        state[:, t] .= state[:, t-1] .+ (actions[:, t-1] .* convert(eltype(state), 2) .- one(eltype(state)))
     end
     rewards[:, max_time-1] .-= scalar_reward.*abs.(state[:, max_time])
-    # rewards[:, max_time-1] .+= scalar_reward.*(state[:, max_time].==0)
 
     nothing
 end
@@ -86,7 +89,7 @@ function calculate_gradients(states, actions, params, rewards; discount=one(elty
     return gradients ./ (batch_size)
 end
 
-function run_epoch!(state, actions, rewards, params, cache; lr=0.01, discount=1.0, scalar_reward=1.0, rng=Random.GLOBAL_RNG)
+function run_epoch!(state, actions, rewards, params, cache; lr=0.01, discount=1.0, scalar_reward=100.0, rng=Random.GLOBAL_RNG)
     get_batch!(state, actions, rewards, params, cache; scalar_reward, rng)
     gradients = calculate_gradients(state, actions, params, rewards; discount)
     params .+= lr .* gradients
@@ -103,4 +106,32 @@ function train!(state, actions, rewards, params, cache; epochs=100, show_progres
     
 
     return average_returns
+end
+
+function get_return_curves(n_repeats = 32; T=10, batch_size=128, show_progress=true, kwargs...)
+    
+    iter = show_progress ? ProgressBar(1:n_repeats) : (1:n_repeats)
+    returns = Vector{Any}(undef, length(iter))
+    Threads.@threads for i in iter
+        state, actions, rewards, params, cache = initialise_variables(batch_size, T)
+        rs = train!(state, actions, rewards, params, cache; show_progress=false, kwargs...)
+        returns[i] = rs
+    end
+    return returns
+end
+
+function conv(x, y)
+    @assert length(y) % 2 == 1
+    out = similar(x)
+    w = length(y)
+    halfw = w ÷ 2
+
+    for i in 1:length(x)
+        left_width = i-max(1, i-halfw)
+        right_width = min(length(x), i+halfw) - i
+
+        idx = (i-left_width):(i+right_width)
+        out[i] = dot(view(x, idx), view(y, halfw-(left_width)+1:halfw+(right_width)+1))
+    end
+    return out
 end

@@ -1,6 +1,9 @@
 using Random
 using Base.Iterators: product
 using ProgressBars
+using Plots
+using Statistics
+gr()
 
 function initialise_state(batch_size, max_sequence_length)
     zeros(Int, batch_size, max_sequence_length)
@@ -118,6 +121,19 @@ function get_return_curves(n_repeats = 32; T=10, batch_size=128, show_progress=t
         returns[i] = rs
     end
     return returns
+end
+
+function plot_return_curves(returns; kwargs...)
+    n_samples = length(returns)
+    average_return = reshape(mean(hcat(returns...), dims=2), :)
+    # Unbiased error on the mean
+    error_on_mean = reshape(std(hcat(returns...), dims=2), :)
+
+    plt = plot(1:length(average_return), average_return; ribbon=error_on_mean, legend=false, xscale=:log10, kwargs...)
+    xlims!(1, length(average_return))
+    xlabel!("Epochs")
+    ylabel!("Average Return")    
+    return plt
 end
 
 function conv(x, y)
